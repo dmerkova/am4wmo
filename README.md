@@ -56,7 +56,12 @@ d)	Provide technical advice to assist Members in rectifying quality issues assoc
 e)	Establish and maintain an online facility that provides the suite of quality monitoring information and tools as described in Attachment B3 to the present appendix; 
 f)	Compile an annual report to the CBS Open Programme Area Group on Integrated Observing Systems on the performance of the ABO and ABO quality monitoring systems, highlighting any important issues
 
-==============================================================================================
+--------------------------------------------------------------------------------
+
 Monthly statistics are produced and uploaded to monitoring site on regular bases
 https://www.nco.ncep.noaa.gov/pmb/qap/acars/   (4 reports)
 https://www.nco.ncep.noaa.gov/pmb/qap/amdar/   (1 report) 
+
+Monthly statistics:
+Every day runs statistic extracting information from conventional diag files for t, uv, and q and are saved.
+Every month runs script that cat all daily stats together, and process monthy statistics.
