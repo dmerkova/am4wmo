@@ -1,0 +1,30 @@
+Pressure Categories (hPa)   
+LOW:   PRES >  700.0
+MID:   PRES <= 700.0 and PRES >= 300.0
+HIGH:  PRES <  300.0
+
+ID: aircraft tail number    
+NA: number of temperature or wind reports available in the pressure category
+NT: number of temperature or wind reports in the pressure category after thinning
+NR: number of temperature or wind reports rejected in the pressure category
+NG: number of observations with gross errors (large difference to Guess)
+NC: number of zero-speed (calm) wind reports
+TB: temperature bias (OB - Guess) in deg. C for non-gross-error temperature data
+TSTD: standard deviation of temperature difference of (OB - Guess) 
+SB:   speed bias (OB - Guess) in m/s for non-gross-error wind data 
+WRMS: RMS difference of (OB - Guess) for non-gross-error wind data 
+
+Criterion for excess gross difference to Guess: 
+ Temperature: LOW 15.0; MID 10.0; HIGH 10.0  (deg. C)
+ Wind:        LOW 15.0; MID 15.0; HIGH 20.0  (m/s) 
+
+Minimum Counts needed for suspect criterion:
+              LOW 20; MID 50; HIGH 50 
+
+Suspect Criteria
+ Temperature Bias: LOW  3.0; MID 2.0; HIGH  2.0 (deg. C)
+ Temperature  RMS: LOW  4.0; MID 3.0; HIGH  3.0 (deg. C)
+ Wind Speed  Bias: LOW  3.0; MID 2.5; HIGH  2.5 (m/s)
+ Wind         RMS: LOW 10.0; MID 8.0; HIGH 10.0 (m/s)
+ More than 2% of observations have gross errors 
+

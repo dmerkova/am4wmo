@@ -1,0 +1,11 @@
+Pressure Categories (hPa)
+LOW:   PRES >  700.0
+MID:   PRES <= 700.0 and PRES >= 300.0
+HIGH:  PRES <  300.0
+
+SID: aircraft tail number
+NA: number of temperature or wind reports available in the pressure category
+NR: number of temperature or wind reports rejected in the pressure category
+TB: temperature bias (OB - Guess) in deg. C for all temperature data
+TSTD: standard deviation of temperature difference of (OB - Guess)
+
