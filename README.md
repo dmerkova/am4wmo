@@ -1,6 +1,16 @@
-# aircraft-monitoring4wmo
+# am4wmo
+Aircraft monitoring for WMO
 This is set of tools preparing statistics for WMO: 
 
+Monthly statistics are produced and uploaded to monitoring site on regular bases
+https://www.nco.ncep.noaa.gov/pmb/qap/acars/   (4 reports)
+https://www.nco.ncep.noaa.gov/pmb/qap/amdar/   (1 report) 
+
+## Tools
+
+Monthly statistics:
+Every day runs statistic extracting information from conventional diag files for t, uv, and q and are saved.
+Every month runs script that cat all daily stats together, and process monthy statistics.
 Development of Lead Centre for Aircraft-Based Observations Functionality, Specification of Requirements
 Version 17 October 2022.
 This is a summary description of the full requirements specification which is made in WMO No. 1200, Guide to Aircraft-Based Observations, Appendix B, GUIDANCE ON QUALITY MONITORING OF AIRCRAFT-BASED OBSERVATIONS.
