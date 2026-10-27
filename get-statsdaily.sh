@@ -62,7 +62,7 @@ begin=$(ndate -24)
 beg=${begin:0:8}
 i="${beg}00"
 end=$(ndate 24 "$i")
-
+WORK_DIR="/lfs/h2/emc/obsproc/noscrub/dagmar.merkova"
 WORK_DIR="${WORK_DIR:-${HOME}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
 export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
 mkdir -p "$DIAGFILES"

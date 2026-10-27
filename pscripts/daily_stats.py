@@ -37,6 +37,7 @@ def build_frame(dataset, obs_fields, label):
     prs = dataset.variables['Pressure']
     stid = dataset.variables['Station_ID']
     obstype = dataset.variables['Observation_Type']
+    dtime = dataset.variables['Time']
     nobs = len(lats)
 
     def safe_var(name, fill_value=0):
@@ -55,6 +56,7 @@ def build_frame(dataset, obs_fields, label):
         pd.DataFrame(data=lons[:], columns=['lon']),
         pd.DataFrame(data=lats[:], columns=['lat']),
         pd.DataFrame(data=obstype[:], columns=['obstype']),
+        pd.DataFrame(data=dtime[:], columns=['dtime']),
         pd.DataFrame(data=stnids[:], columns=['sid']),
         pd.DataFrame(data=prs[:], columns=['prs']),
         pd.DataFrame(data=iuse, columns=['iuse']),
@@ -68,6 +70,15 @@ def build_frame(dataset, obs_fields, label):
 
     df = pd.concat(frames, axis=1)
     return df
+
+
+def finalize_output(df, data_cols, mydate):
+    df = df.copy()
+    df.insert(0, 'dtime', mydate)
+    df.insert(1, 'id', np.arange(len(df), dtype=int))
+    desired = ['dtime', 'id', 'lon', 'lat', 'obstype', 'sid', 'prs'] + list(data_cols) + ['iuse', 'puse', 'setupqc', 'prepqc']
+    existing = [c for c in desired if c in df.columns]
+    return df[existing]
 
 
 def run_temperature(mydate):
@@ -84,8 +95,8 @@ def run_temperature(mydate):
     outdir = OUTPUT_ROOT / month
     outdir.mkdir(parents=True, exist_ok=True)
 
-    df131 = df[df['obstype'] == 131].copy()
-    df133 = df[df['obstype'] == 133].copy()
+    df131 = finalize_output(df[df['obstype'] == 131].copy(), ['omf', 'obs', 'pof'], mydate)
+    df133 = finalize_output(df[df['obstype'] == 133].copy(), ['omf', 'obs', 'pof'], mydate)
 
     df131.to_csv(outdir / f'd131-t{mydate}.csv', index=False)
     df133.to_csv(outdir / f'd133-t{mydate}.csv', index=False)
@@ -107,8 +118,8 @@ def run_wind(mydate):
     outdir = OUTPUT_ROOT / month
     outdir.mkdir(parents=True, exist_ok=True)
 
-    df231 = df[df['obstype'] == 231].copy()
-    df233 = df[df['obstype'] == 233].copy()
+    df231 = finalize_output(df[df['obstype'] == 231].copy(), ['omfv', 'omfu', 'obsu', 'obsv'], mydate)
+    df233 = finalize_output(df[df['obstype'] == 233].copy(), ['omfv', 'omfu', 'obsu', 'obsv'], mydate)
 
     df231.to_csv(outdir / f'd231-w{mydate}.csv', index=False)
     df233.to_csv(outdir / f'd233-w{mydate}.csv', index=False)
@@ -128,7 +139,7 @@ def run_humidity(mydate):
     outdir = OUTPUT_ROOT / month
     outdir.mkdir(parents=True, exist_ok=True)
 
-    df133 = df[df['obstype'] == 133].copy()
+    df133 = finalize_output(df[df['obstype'] == 133].copy(), ['omf', 'obs'], mydate)
     df133.to_csv(outdir / f'd133-q{mydate}.csv', index=False)
     print(f'Wrote humidity files for {mydate}')
 
