@@ -63,7 +63,10 @@ beg=${begin:0:8}
 i="${beg}00"
 end=$(ndate 24 "$i")
 
-cd "$HOME" || exit 1
+WORK_DIR="${WORK_DIR:-${HOME}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
+export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
+mkdir -p "$DIAGFILES"
+cd "$WORK_DIR" || exit 1
 
 module load python/3.8.6
 module use /lfs/h1/mdl/nbm/save/apps/modulefiles
@@ -74,6 +77,24 @@ export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}/lfs/h1/mdl/nbm/save/apps/python
 while [ "$i" -le "$end" ]; do
   echo "Processing $i"
 
+  datum="${i:0:8}"
+  hh="${i:8:2}"
+  src="/lfs/h1/ops/prod/com/gfs/v16.3/gdas.${datum}/${hh}/atmos/gdas.t${hh}z.cnvstat"
+
+  if [ ! -f "$src" ]; then
+    echo "Missing production diag archive: $src" >&2
+    exit 1
+  fi
+
+  cp -f "$src" "$DIAGFILES/"
+  tar -xvf "$DIAGFILES/gdas.t${hh}z.cnvstat" -C "$DIAGFILES/" \
+    "diag_conv_t_ges.${datum}${hh}.nc4.gz" \
+    "diag_conv_uv_ges.${datum}${hh}.nc4.gz" \
+    "diag_conv_q_ges.${datum}${hh}.nc4.gz"
+  gunzip -f "$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4.gz" \
+    "$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4.gz" \
+    "$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4.gz"
+
   ARGS=(--date "$i")
   for kind in "${SELECTED[@]}"; do
     ARGS+=(--type "$kind")
@@ -81,6 +102,14 @@ while [ "$i" -le "$end" ]; do
 
   python "$PYTHON_SCRIPT" "${ARGS[@]}"
 
+  rm -f "$DIAGFILES/gdas.t${hh}z.cnvstat" \
+        "$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4" \
+        "$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4" \
+        "$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4"
+
   i=$((i + 6))
 done
+
+rm -f "$DIAGFILES"/*.tar "$DIAGFILES"/*.gz "$DIAGFILES"/*.nc4 2>/dev/null || true
+rmdir "$DIAGFILES" 2>/dev/null || true
 

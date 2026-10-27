@@ -9,6 +9,7 @@ Examples:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -17,7 +18,7 @@ import pandas as pd
 from netCDF4 import Dataset, chartostring
 
 
-BASE_DIR = Path('/lfs/h2/emc/ptmp/ashley.stanfield/CRON/wdqms/diagfiles')
+BASE_DIR = Path(os.environ.get('DIAGFILES', '.'))
 OUTPUT_ROOT = Path('/lfs/h2/emc/obsproc/noscrub/dagmar.merkova/MONaircft/data')
 
 
