@@ -74,8 +74,10 @@ def build_frame(dataset, obs_fields, label):
 
 def finalize_output(df, data_cols, mydate):
     df = df.copy()
-    df.insert(0, 'dtime', mydate)
-    df.insert(1, 'id', np.arange(len(df), dtype=int))
+    if 'dtime' not in df.columns:
+        df.insert(0, 'dtime', mydate)
+    if 'id' not in df.columns:
+        df.insert(1 if 'dtime' in df.columns else 0, 'id', np.arange(len(df), dtype=int))
     desired = ['dtime', 'id', 'lon', 'lat', 'obstype', 'sid', 'prs'] + list(data_cols) + ['iuse', 'puse', 'setupqc', 'prepqc']
     existing = [c for c in desired if c in df.columns]
     return df[existing]
