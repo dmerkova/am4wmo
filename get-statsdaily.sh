@@ -1,9 +1,8 @@
 #!/bin/bash
 set -eu
 
-export NDATE=/apps/ops/prod/nco/core/prod_util.v2.0.14/exec/ndate
-
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/env.sh"
 PYTHON_SCRIPT="${SCRIPT_DIR}/pscripts/daily_stats.py"
 
 # Optional filters: default = all three types.
@@ -62,17 +61,10 @@ begin=$(ndate -24)
 beg=${begin:0:8}
 i="${beg}00"
 end=$(ndate 24 "$i")
-WORK_DIR="/lfs/h2/emc/obsproc/noscrub/dagmar.merkova"
 WORK_DIR="${WORK_DIR:-${HOME}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
 export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
 mkdir -p "$DIAGFILES"
 cd "$WORK_DIR" || exit 1
-
-module load python/3.8.6
-module use /lfs/h1/mdl/nbm/save/apps/modulefiles
-module load python-modules/3.8.6
-
-export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}/lfs/h1/mdl/nbm/save/apps/python-modules/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages:/lfs/h2/emc/da/noscrub/dagmar.merkova/git/py-ncepbufr:/lfs/h2/emc/da/noscrub/dagmar.merkova/git/pandas:/lfs/h2/emc/da/noscrub/dagmar.merkova/git/py-ncepbufr/:/lfs/h2/emc/da/noscrub/dagmar.merkova/git/NCEPLIBS-bufr/python/ncepbufr:/u/dagmar.merkova/.local/lib/python3.6/site-packages"
 
 while [ "$i" -le "$end" ]; do
   echo "Processing $i"
