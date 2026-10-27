@@ -37,10 +37,17 @@ def build_frame(dataset, obs_fields, label):
     prs = dataset.variables['Pressure']
     stid = dataset.variables['Station_ID']
     obstype = dataset.variables['Observation_Type']
-    iuse = dataset.variables['Analysis_Use_Flag'][:]
-    puse = dataset.variables['Prep_Use_Flag'][:]
-    prepqc = dataset.variables['Prep_QC_Mark'][:]
-    setupqc = dataset.variables['Setup_QC_Mark'][:]
+    nobs = len(lats)
+
+    def safe_var(name, fill_value=0):
+        if name in dataset.variables:
+            return dataset.variables[name][:]
+        return np.full(nobs, fill_value, dtype=np.int32)
+
+    iuse = safe_var('Analysis_Use_Flag')
+    puse = safe_var('Prep_Use_Flag')
+    prepqc = safe_var('Prep_QC_Mark')
+    setupqc = safe_var('Setup_QC_Mark')
 
     stnids = station_ids(stid)
 
