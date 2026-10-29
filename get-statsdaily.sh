@@ -115,9 +115,14 @@ while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_D
   datum="${i:0:8}"
   hh="${i:8:2}"
   src="/lfs/h1/ops/prod/com/gfs/v16.3/gdas.${datum}/${hh}/atmos/gdas.t${hh}z.cnvstat"
+  alt_src="/lfs/h2/emc/ptmp/dagmar.merkova/gdas.${datum}/${hh}/atmos/gdas.t${hh}z.cnvstat"
 
-  if [ ! -f "$src" ]; then
-    echo "Missing production diag archive: $src" >&2
+  if [ -f "$src" ]; then
+    src="$src"
+  elif [ -f "$alt_src" ]; then
+    src="$alt_src"
+  else
+    echo "Missing production diag archive: $src or $alt_src" >&2
     exit 1
   fi
 
