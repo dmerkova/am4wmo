@@ -106,8 +106,17 @@ fi
 i="$BEGIN_DATE"
 WORK_DIR="${WORK_DIR:-${HOME}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
 export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
+OUTPUT_ROOT="${AM4WMO_DATA_ROOT:-${HOME}/data}"
+LOGFILE="${LOGFILE:-${WORK_DIR}/am4wmo-diag.log}"
 mkdir -p "$DIAGFILES"
 cd "$WORK_DIR" || exit 1
+
+exec > >(tee -a "$LOGFILE") 2>&1
+
+echo "Log file: $LOGFILE"
+echo "Working directory: $WORK_DIR"
+echo "Diagfiles directory: $DIAGFILES"
+echo "Output root: $OUTPUT_ROOT"
 
 while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_DATE")" +%s)" ]; do
   echo "Processing $i"
@@ -126,6 +135,9 @@ while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_D
     exit 1
   fi
 
+  echo "Source diag file: $src"
+  echo "Output root: $OUTPUT_ROOT"
+
   cp -f "$src" "$DIAGFILES/"
   tar -xvf "$DIAGFILES/gdas.t${hh}z.cnvstat" -C "$DIAGFILES/" \
     "diag_conv_t_ges.${datum}${hh}.nc4.gz" \
@@ -142,6 +154,36 @@ while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_D
 
   python "$PYTHON_SCRIPT" "${ARGS[@]}"
 
+  month="${i:4:2}"
+  output_dir="${OUTPUT_ROOT}/${month}"
+  echo "Output directory: $output_dir"
+  created_ok=true
+  for kind in "${SELECTED[@]}"; do
+    case "$kind" in
+      temp)
+        files=("${output_dir}/d131-t${i}.csv" "${output_dir}/d133-t${i}.csv")
+        ;;
+      wind)
+        files=("${output_dir}/d231-w${i}.csv" "${output_dir}/d233-w${i}.csv")
+        ;;
+      humidity)
+        files=("${output_dir}/d133-q${i}.csv")
+        ;;
+      *)
+        files=()
+        ;;
+    esac
+    for f in "${files[@]}"; do
+      if [ -f "$f" ]; then
+        echo "Output created: $f"
+      else
+        echo "Output missing: $f" >&2
+        created_ok=false
+      fi
+    done
+  done
+  echo "Output status for $i: $created_ok"
+
   rm -f "$DIAGFILES/gdas.t${hh}z.cnvstat" \
         "$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4" \
         "$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4" \
@@ -152,4 +194,6 @@ done
 
 rm -f "$DIAGFILES"/*.tar "$DIAGFILES"/*.gz "$DIAGFILES"/*.nc4 2>/dev/null || true
 rmdir "$DIAGFILES" 2>/dev/null || true
+
+echo "Finished. Log file: $LOGFILE"
 
