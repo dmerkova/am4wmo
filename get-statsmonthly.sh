@@ -11,9 +11,9 @@ nmonth=${beg:4:6}
 namemonth=$(date -u -d "${nyear}-${nmonth}-01" +"%B")
 
 WORKDIR="${WORKDIR:-${MONAIRCFT_ROOT}}"
-WORKDIRSRC="${WORKDIRSRC:-$WORKDIR}"
-DATA_DIR="$WORKDIR/data/$nmonth"
-HEADER_DIR="$WORKDIR/src"
+WORKDIRSRC="${WORKDIRSRC:-${AM4WMO_ROOT}/pscripts}"
+DATA_DIR="${DATA_DIR:-${AM4WMO_DATA_ROOT}/$nmonth}"
+HEADER_DIR="${HEADER_DIR:-${AM4WMO_ROOT}/fix}"
 
 cd "$WORKDIR" || exit 1
 

@@ -19,7 +19,7 @@ from netCDF4 import Dataset, chartostring
 
 
 BASE_DIR = Path(os.environ.get('DIAGFILES', '.'))
-OUTPUT_ROOT = Path('/lfs/h2/emc/obsproc/noscrub/dagmar.merkova/MONaircft/data')
+OUTPUT_ROOT = Path(os.environ.get('AM4WMO_DATA_ROOT', Path.home() / 'data'))
 
 
 def station_ids(stid):
