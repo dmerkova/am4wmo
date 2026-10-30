@@ -106,6 +106,7 @@ fi
 i="$BEGIN_DATE"
 STMP_DIR="${STMP:-${TMPDIR:-/tmp}}"
 WORK_DIR="${WORK_DIR:-${STMP_DIR}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
+mkdir -p "$WORK_DIR"
 export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
 OUTPUT_ROOT="${AM4WMO_DATA_ROOT:-${MONAIRCFT_ROOT:-/lfs/h2/emc/obsproc/noscrub/dagmar.merkova/MONaircft}/data}"
 LOGFILE="${LOGFILE:-${WORK_DIR}/am4wmo-diag.log}"
