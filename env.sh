@@ -6,6 +6,14 @@ AM4WMO_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export AM4WMO_ROOT
 
 export MONAIRCFT_ROOT="${MONAIRCFT_ROOT:-/lfs/h2/emc/obsproc/noscrub/dagmar.merkova/MONaircft}"
+case "$(hostname)" in
+  *wcoss*|*WCOSS*|*dlogin*|*login*|*cactus*)
+    export STMP="${STMP:-/lfs/h2/emc/stmp/${USER:-$(whoami)}}"
+    ;;
+  *)
+    export STMP="${STMP:-${TMPDIR:-/tmp}}"
+    ;;
+ esac
 export WORKDIR="${WORKDIR:-$MONAIRCFT_ROOT}"
 export AM4WMO_DATA_ROOT="${AM4WMO_DATA_ROOT:-${MONAIRCFT_ROOT}/data}"
 export NDATE="${NDATE:-/apps/ops/prod/nco/core/prod_util.v2.0.14/exec/ndate}"
