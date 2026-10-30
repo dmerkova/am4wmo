@@ -106,7 +106,7 @@ fi
 i="$BEGIN_DATE"
 WORK_DIR="${WORK_DIR:-${HOME}/am4wmo-diag-stats-$(date -u +%Y%m%d%H%M%S)}"
 export DIAGFILES="${DIAGFILES:-${WORK_DIR}/diagfiles}"
-OUTPUT_ROOT="${AM4WMO_DATA_ROOT:-${HOME}/data}"
+OUTPUT_ROOT="${AM4WMO_DATA_ROOT:-${MONAIRCFT_ROOT:-/lfs/h2/emc/obsproc/noscrub/dagmar.merkova/MONaircft}/data}"
 LOGFILE="${LOGFILE:-${WORK_DIR}/am4wmo-diag.log}"
 mkdir -p "$DIAGFILES"
 cd "$WORK_DIR" || exit 1
@@ -139,13 +139,30 @@ while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_D
   echo "Output root: $OUTPUT_ROOT"
 
   cp -f "$src" "$DIAGFILES/"
-  tar -xvf "$DIAGFILES/gdas.t${hh}z.cnvstat" -C "$DIAGFILES/" \
-    "diag_conv_t_ges.${datum}${hh}.nc4.gz" \
-    "diag_conv_uv_ges.${datum}${hh}.nc4.gz" \
-    "diag_conv_q_ges.${datum}${hh}.nc4.gz"
-  gunzip -f "$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4.gz" \
-    "$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4.gz" \
-    "$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4.gz"
+
+  files_to_extract=()
+  files_to_gunzip=()
+  for kind in "${SELECTED[@]}"; do
+    case "$kind" in
+      temp)
+        files_to_extract+=("diag_conv_t_ges.${datum}${hh}.nc4.gz")
+        files_to_gunzip+=("$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4.gz")
+        ;;
+      wind)
+        files_to_extract+=("diag_conv_uv_ges.${datum}${hh}.nc4.gz")
+        files_to_gunzip+=("$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4.gz")
+        ;;
+      humidity)
+        files_to_extract+=("diag_conv_q_ges.${datum}${hh}.nc4.gz")
+        files_to_gunzip+=("$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4.gz")
+        ;;
+    esac
+  done
+
+  if [ "${#files_to_extract[@]}" -gt 0 ]; then
+    tar -xvf "$DIAGFILES/gdas.t${hh}z.cnvstat" -C "$DIAGFILES/" "${files_to_extract[@]}"
+    gunzip -f "${files_to_gunzip[@]}"
+  fi
 
   ARGS=(--date "$i")
   for kind in "${SELECTED[@]}"; do
@@ -184,10 +201,21 @@ while [ "$(date -u -d "$(utc_dt "$i")" +%s)" -le "$(date -u -d "$(utc_dt "$END_D
   done
   echo "Output status for $i: $created_ok"
 
-  rm -f "$DIAGFILES/gdas.t${hh}z.cnvstat" \
-        "$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4" \
-        "$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4" \
-        "$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4"
+  files_to_remove=("$DIAGFILES/gdas.t${hh}z.cnvstat")
+  for kind in "${SELECTED[@]}"; do
+    case "$kind" in
+      temp)
+        files_to_remove+=("$DIAGFILES/diag_conv_t_ges.${datum}${hh}.nc4")
+        ;;
+      wind)
+        files_to_remove+=("$DIAGFILES/diag_conv_uv_ges.${datum}${hh}.nc4")
+        ;;
+      humidity)
+        files_to_remove+=("$DIAGFILES/diag_conv_q_ges.${datum}${hh}.nc4")
+        ;;
+    esac
+  done
+  rm -f "${files_to_remove[@]}"
 
   i="$(step_dt "$i" 6)"
 done
@@ -197,3 +225,4 @@ rmdir "$DIAGFILES" 2>/dev/null || true
 
 echo "Finished. Log file: $LOGFILE"
 
+ 
